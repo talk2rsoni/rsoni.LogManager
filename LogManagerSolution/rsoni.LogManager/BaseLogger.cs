@@ -5,117 +5,81 @@ using System.Collections.Generic;
 
 namespace rsoni.LogManager
 {
-    public class BaseLogger : ILogger
+    public class BaseLogger
     {
         public bool IsLogError;
         public bool IsLogInfo;
         public bool IsLogWarn;
         public bool IsLogTrack;
 
-        internal readonly TelemetryClient TelemetryClient;
         private IConfiguration Configuration;
 
         public Guid CorrelationId { get; set; } = Guid.NewGuid();
 
+        public string LogFileName { get; set; } = "Logger";
+
+        public BaseLogger(string logName)
+        {
+            this.LogFileName = logName;
+            InitilizeLoggerFromAPPConfig(new Configuration());
+        }
         public BaseLogger(IConfiguration configuration)
+        {
+            InitilizeLoggerFromAPPConfig(configuration);
+        }
+
+        public BaseLogger(string logError, string logInfo, string logWarning, string logTrack)
+        {
+            InitilizeLogger(null, string.Empty, logError, logInfo, logWarning, logTrack);
+        }
+
+
+        #region initilize constructor
+
+        private void InitilizeLoggerFromAPPConfig(IConfiguration configuration)
         {
             Configuration = configuration;
             IsLogError = configuration.GetAppSettingEntry<Boolean>(Constants.AppSettingsKeys.Logging.LogError);
             IsLogInfo = configuration.GetAppSettingEntry<Boolean>(Constants.AppSettingsKeys.Logging.LogInfo);
             IsLogWarn = configuration.GetAppSettingEntry<Boolean>(Constants.AppSettingsKeys.Logging.LogWarning);
             IsLogTrack = configuration.GetAppSettingEntry<Boolean>(Constants.AppSettingsKeys.Logging.LogTrack);
-
-            TelemetryClient = new TelemetryClient();
-            TelemetryClient.InstrumentationKey = configuration.GetAppSettingEntry<string>(Constants.AppSettingsKeys.Logging.AppInsightInstrumentationKey);
         }
-
-        #region Implement Interface.
-
-        public void LogEntry(Enums.LogType logType, string message)
+        private void InitilizeLogger(IConfiguration config, string logFileName, string logError, string logInfo, string logWarning, string logTrack)
         {
-            LogEntry(logType, message, null);
-        }
 
-        public void LogEntry(Enums.LogType logType, string message, Exception exception)
-        {
-            switch (logType)
+            if (config == null)
+                Configuration = new Configuration();
+
+            if (string.IsNullOrEmpty(logFileName) == false)
+                this.LogFileName = logFileName;
+
+            IsLogError = false;
+            IsLogInfo = false;
+            IsLogWarn = false;
+            IsLogTrack = false;
+
+            if (string.IsNullOrEmpty(logError) == false && logError.ToLower() == "true")
             {
-                case Enums.LogType.Error:
-                    if (exception == null)
-                        LogError(message);
-                    else
-                        LogError(exception);
-                    break;
-
-                case Enums.LogType.Warning:
-                    LogWarning(message);
-                    break;
-
-                case Enums.LogType.Information:
-                    LogInfo(message);
-                    break;
-
-                default:
-                    LogInfo(message);
-                    break;
+                IsLogError = true;
             }
+
+            if (string.IsNullOrEmpty(logInfo) == false && logInfo.ToLower() == "true")
+            {
+                IsLogInfo = true;
+            }
+
+            if (string.IsNullOrEmpty(logWarning) == false && logWarning.ToLower() == "true")
+            {
+                IsLogWarn = true;
+            }
+
+            if (string.IsNullOrEmpty(logTrack) == false && logTrack.ToLower() == "true")
+            {
+                IsLogTrack = true;
+            }
+
         }
 
-        public virtual void LogError(string message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void LogError(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void LogInfo(string message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void LogWarning(string message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void TrackEvent(Enums.EnrollmentEvent eventName, Dictionary<string, string> properties = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void TrackApplicationEvent(Guid correlationId, Enums.ApplicationEvent eventName, Dictionary<string, string> properties)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void TrackSystemEvent(Guid correlationId, Enums.EnrollmentEvent eventName, Dictionary<string, string> properties)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void LogMethodStart(params string[] parameters)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void LogMethodEnd(params string[] parameters)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void LogRequestDetails(string userId, DateTime startTime, DateTime endTime, string controllerName, string methodName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual string GetDetailsfromLogger(DateTime startDatetime, DateTime endDateTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion Implement Interface.
+        #endregion
     }
 }

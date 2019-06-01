@@ -14,29 +14,61 @@ using System.Text;
 namespace rsoni.LogManager
 {
 
-    public class AppInsightLogger : BaseLogger
+    public class AppInsightLogger : BaseLogger, ILogger
     {
         #region Fields
-        private string logFileName;
-
+        private string logFileName = "AppInsightLogger";
+        internal TelemetryClient TelemetryClient;
         #endregion Fields
 
-        public AppInsightLogger(string logName) : base(new Configuration())
+        #region Constructor
+
+        
+
+        public AppInsightLogger(string logName) : base(logName)
         {
-            logFileName = logName;
+            IConfiguration config = new Configuration();
+            TelemetryClient = new TelemetryClient();
+            this.AppInsightInstrumentationKey = config.GetAppSettingEntry<string>(Constants.AppSettingsKeys.Logging.AppInsightInstrumentationKey);
+            TelemetryClient.InstrumentationKey = this.AppInsightInstrumentationKey;
+
+        }
+        public AppInsightLogger(IConfiguration config) : base(config)
+        {
+            //After base create telematry object.
+            TelemetryClient = new TelemetryClient();
+            this.AppInsightInstrumentationKey = config.GetAppSettingEntry<string>(Constants.AppSettingsKeys.Logging.AppInsightInstrumentationKey);
+            TelemetryClient.InstrumentationKey = this.AppInsightInstrumentationKey;
         }
 
-        #region Methods
+        public AppInsightLogger(string instrumentationKey, string logError, string logInfo, string logWarning, string logTrack)
+            : base(logError, logInfo, logWarning, logTrack)
+        {
+            TelemetryClient = new TelemetryClient();
+            if (string.IsNullOrEmpty(instrumentationKey) == false)
+            {
+                this.AppInsightInstrumentationKey = instrumentationKey;
+                TelemetryClient.InstrumentationKey = instrumentationKey;
+            }
+        }
+
+        #endregion
+
+        #region Properties
+        public string AppInsightInstrumentationKey { get; private set; } = string.Empty;
+        #endregion
 
         #region Public Methods
 
-        public override void LogError(Exception exception)
+        public void LogError(Exception exception)
         {
             try
             {
                 if (IsLogError)
                 {
                     Dictionary<string, string> exceptionDictionary = new Dictionary<string, string>();
+                    exceptionDictionary.Add("PreciseTimeStamp", DateTime.Now.Ticks.ToString());
+                    exceptionDictionary.Add("Error Message", exception.Message);
                     foreach (DictionaryEntry exceptionData in exception.Data)
                     {
                         exceptionDictionary.Add(exceptionData.Key.ToString(), exceptionData.Value.ToString());
@@ -58,7 +90,7 @@ namespace rsoni.LogManager
             }
         }
 
-        public override void LogError(string message)
+        public void LogError(string message)
         {
             try
             {
@@ -67,6 +99,7 @@ namespace rsoni.LogManager
                     TelemetryClient.Context.Operation.Id = CorrelationId.ToString();
                     ExceptionTelemetry exceptionTelementry = new ExceptionTelemetry();
                     exceptionTelementry.Exception = new Exception("LogFileName- " + logFileName + ":" + message);
+                    exceptionTelementry.Properties.Add("PreciseTimeStamp", DateTime.Now.Ticks.ToString());
                     TelemetryClient.TrackException(exceptionTelementry);
                     TelemetryClient.Flush();
                 }
@@ -81,14 +114,21 @@ namespace rsoni.LogManager
             }
         }
 
-        public override void LogInfo(string message)
+        public void LogInfo(string message)
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>();
+            properties.Add("PreciseTimeStamp", DateTime.Now.Ticks.ToString());
+            LogInfo(message, properties);
+        }
+
+        public void LogInfo(string message, Dictionary<string, string> properties)
         {
             try
             {
                 if (IsLogInfo)
                 {
                     TelemetryClient.Context.Operation.Id = CorrelationId.ToString();
-                    TelemetryClient.TrackTrace("LogFileName- " + logFileName + ":" + message, SeverityLevel.Information);
+                    TelemetryClient.TrackTrace("LogFileName- " + logFileName + ":" + message, SeverityLevel.Information, properties);
                     TelemetryClient.Flush();
                 }
             }
@@ -102,14 +142,21 @@ namespace rsoni.LogManager
             }
         }
 
-        public override void LogWarning(string message)
+        public void LogWarning(string message)
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>();
+            properties.Add("PreciseTimeStamp", DateTime.Now.Ticks.ToString());
+            LogWarning(message, properties);
+        }
+
+        public void LogWarning(string message, Dictionary<string, string> properties)
         {
             try
             {
                 if (IsLogWarn)
                 {
                     TelemetryClient.Context.Operation.Id = CorrelationId.ToString();
-                    TelemetryClient.TrackTrace("LogFileName- " + logFileName + ":" + message, SeverityLevel.Warning);
+                    TelemetryClient.TrackTrace("LogFileName- " + logFileName + ":" + message, SeverityLevel.Warning, properties);
                     TelemetryClient.Flush();
                 }
             }
@@ -123,14 +170,17 @@ namespace rsoni.LogManager
             }
         }
 
-        public override void TrackEvent(Enums.EnrollmentEvent eventName, Dictionary<string, string> properties)
+        public void TrackEvent(Enums.EnrollmentEvent eventName, Dictionary<string, string> properties)
         {
             try
             {
                 if (IsLogTrack)
                 {
                     if (properties != null)
+                    {
                         properties.Add("LogFileName", logFileName);
+                        properties.Add("PreciseTimeStamp", DateTime.Now.Ticks.ToString());
+                    }
                     TelemetryClient.Context.Operation.Id = CorrelationId.ToString();
                     if (properties != null)
                         TelemetryClient.TrackEvent(eventName.ToString(), properties);
@@ -149,14 +199,17 @@ namespace rsoni.LogManager
             }
         }
 
-        public override void TrackApplicationEvent(Guid correlationId, Enums.ApplicationEvent eventName, Dictionary<string, string> properties)
+        public void TrackApplicationEvent(Guid correlationId, Enums.ApplicationEvent eventName, Dictionary<string, string> properties)
         {
             try
             {
                 if (IsLogTrack)
                 {
                     if (properties != null)
+                    {
                         properties.Add("LogFileName", logFileName);
+                        properties.Add("PreciseTimeStamp", DateTime.Now.Ticks.ToString());
+                    }
                     TelemetryClient.Context.Operation.Id = correlationId.ToString();
                     if (properties != null)
                         TelemetryClient.TrackEvent(eventName.ToString(), properties);
@@ -175,14 +228,17 @@ namespace rsoni.LogManager
             }
         }
 
-        public override void TrackSystemEvent(Guid correlationId, Enums.EnrollmentEvent eventName, Dictionary<string, string> properties)
+        public void TrackSystemEvent(Guid correlationId, Enums.EnrollmentEvent eventName, Dictionary<string, string> properties)
         {
             try
             {
                 if (IsLogTrack)
                 {
                     if (properties != null)
+                    {
                         properties.Add("LogFileName", logFileName);
+                        properties.Add("PreciseTimeStamp", DateTime.Now.Ticks.ToString());
+                    }
                     TelemetryClient.Context.Operation.Id = correlationId.ToString();
                     if (properties != null)
                         TelemetryClient.TrackEvent(eventName.ToString(), properties);
@@ -201,7 +257,7 @@ namespace rsoni.LogManager
             }
         }
 
-        public override void LogMethodStart(params string[] parameters)
+        public void LogMethodStart(params string[] parameters)
         {
             try
             {
@@ -230,7 +286,7 @@ namespace rsoni.LogManager
             }
         }
 
-        public override void LogMethodEnd(params string[] parameters)
+        public void LogMethodEnd(params string[] parameters)
         {
             try
             {
@@ -269,12 +325,12 @@ namespace rsoni.LogManager
         /// <param name="endTime"></param>
         /// <param name="className"></param>
         /// <param name="methodName"></param>
-        public override void LogRequestDetails(string userId, DateTime startTime, DateTime endTime, string controllerName, string methodName)
+        public void LogRequestDetails(string userId, DateTime startTime, DateTime endTime, string controllerName, string methodName)
         {
             try
             {
                 var executionTime = endTime - startTime;
-                string formattedMessage = String.Format("LogFileName - {0}, UserId - {1}. Correlation Id - {2}. Controller Name - {3}. Method Name - {4}. Method call started at - {5}. Method call end at - {6}. Method execution time - {7} ", logFileName, string.IsNullOrEmpty(userId) ? "Not Available" : userId, CorrelationId, controllerName, methodName, startTime, endTime, executionTime);
+                string formattedMessage = String.Format("LogFileName - {0}, UserId - {1}. Correlation Id - {2}. Controller Name - {3}. Method Name - {4}. Method call started at - {5}. Method call end at - {6}. Method execution time - {7} ", logFileName, string.IsNullOrEmpty(userId) ? "Not Available" : userId, CorrelationId, controllerName, methodName, startTime.ToString("HH:mm:ss.fff"), endTime.ToString("HH:mm:ss.fff"), executionTime);
                 TelemetryClient.Context.Operation.Id = CorrelationId.ToString();
                 TelemetryClient.TrackTrace(formattedMessage, SeverityLevel.Information);
                 TelemetryClient.Flush();
@@ -285,7 +341,8 @@ namespace rsoni.LogManager
             }
         }
 
-        public override string GetDetailsfromLogger(DateTime startDatetime, DateTime endDateTime)
+        //below is not in use.
+        public string GetDetailsfromLogger(DateTime startDatetime, DateTime endDateTime)
         {
             try
             {
@@ -315,8 +372,37 @@ namespace rsoni.LogManager
             }
         }
 
+        public void LogEntry(Enums.LogType logType, string message)
+        {
+            LogEntry(logType, message, null);
+        }
+
+        public void LogEntry(Enums.LogType logType, string message, Exception exception)
+        {
+            switch (logType)
+            {
+                case Enums.LogType.Error:
+                    if (exception == null)
+                        LogError(message);
+                    else
+                        LogError(exception);
+                    break;
+
+                case Enums.LogType.Warning:
+                    LogWarning(message);
+                    break;
+
+                case Enums.LogType.Information:
+                    LogInfo(message);
+                    break;
+
+                default:
+                    LogInfo(message);
+                    break;
+            }
+        }
+
         #endregion Public Methods
 
-        #endregion Methods
     }
 }
