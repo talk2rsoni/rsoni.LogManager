@@ -64,7 +64,30 @@ namespace rsoni.LogManager.UnitTests
             Assert.IsNotNull(logger);
         }
 
+
+        [TestMethod]
+        [TestCategory("Logging")]
+        public void FileLoggerwithConfigParameters()
+        {
+            DependencyInjector.Init();
+            ILogger logger;
+            IConfiguration configuration;
+            configuration = new config();
+            logger = DependencyInjector.GetOtherClasses<ILogger>("f1logger"
+                , "configuration", configuration);
+            Assert.IsNotNull(logger);
+        }
+
         #endregion
 
+    }
+
+
+    public class config : IConfiguration
+    {
+        public TType GetAppSettingEntry<TType>(string AppSettingKey)
+        {
+            return default(TType);
+        }
     }
 }
