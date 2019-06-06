@@ -11,28 +11,26 @@ using System.Threading.Tasks;
 
 namespace rsoni.LogManager
 {
-    public class FileLogger : ILogger
+    public class FileLogger : BaseLogger, ILogger
     {
         #region Fields
-        private IConfiguration Configuration;
-        private bool IsLogError;
-        private bool IsLogInfo;
-        private bool IsLogWarn;
-        private bool IsLogTrack;
-        private string logFileName;
+        //
         #endregion Fields
-
-        public FileLogger(string logName)
+        public FileLogger(string logName) : base(logName)
         {
-            Configuration = new Configuration();
-            IsLogError = Configuration.GetAppSettingEntry<Boolean>(Constants.AppSettingsKeys.Logging.LogError);
-            IsLogInfo = Configuration.GetAppSettingEntry<Boolean>(Constants.AppSettingsKeys.Logging.LogInfo);
-            IsLogWarn = Configuration.GetAppSettingEntry<Boolean>(Constants.AppSettingsKeys.Logging.LogWarning);
-            IsLogTrack = Configuration.GetAppSettingEntry<Boolean>(Constants.AppSettingsKeys.Logging.LogTrack);
-            logFileName = logName;
+            // Do Nothing.
+        }
+        public FileLogger(IConfiguration configuration) : base(configuration)
+        {
+            //After base create telematry object.
         }
 
-        public Guid CorrelationId { get; set; } = Guid.NewGuid();
+        public FileLogger(string logFileName, string logError, string logInfo, string logWarning, string logTrack)
+            : base(logError, logInfo, logWarning, logTrack)
+        {
+            this.LogFileName = LogFileName;
+        }
+
 
         public string GetDetailsfromLogger(DateTime startDatetime, DateTime endDateTime)
         {
@@ -99,7 +97,7 @@ namespace rsoni.LogManager
                     {
                         exceptionDictionary.Add(exceptionData.Key.ToString(), exceptionData.Value.ToString());
                     }
-                    LogEntry2("Exception :" + exception.StackTrace);
+                    LogEntry2("Exception :" + exception.Message + ", " + exception.StackTrace);
                 }
             }
             catch (LogMangerException)
@@ -143,8 +141,8 @@ namespace rsoni.LogManager
             try
             {
                 FileLock.AcquireWriterLock(60000);
-                logMsg = "Time:" + DateTime.Now.ToShortTimeString() + " - " + logMsg;
-                string logFile = GetLogFolder() + logFileName + ".log";
+                logMsg = "Time:" + DateTime.Now.ToString("HH:mm:ss.fff") + " - " + logMsg;
+                string logFile = GetLogFolder() + this.LogFileName + ".log";
                 if (File.Exists(logFile))
                 {
                     DateTime creationDateTime = File.GetCreationTime(logFile);
@@ -153,7 +151,7 @@ namespace rsoni.LogManager
                     // Check if just the Date is changed so that even at 11 pm in night will go in different file.
                     if (DateTime.Now.ToString("yyyyMMdd") != creationDateTime.ToString("yyyyMMdd"))
                     {
-                        File.Copy(logFile, GetLogFolder() + logFileName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".log");
+                        File.Copy(logFile, GetLogFolder() + this.LogFileName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".log");
                         // This logic is just to set creation date and time for file.
                         File.Delete(logFile);
                     }
@@ -247,12 +245,40 @@ namespace rsoni.LogManager
 
         public void TrackEvent(Enums.EnrollmentEvent eventName, Dictionary<string, string> properties = null)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (IsLogTrack)
+                {
+                    LogEntry2("TrackEvent :" + eventName + ", " + properties.ToDebugString());
+                }
+            }
+            catch (LogMangerException)
+            {
+                throw;
+            }
+            catch (Exception innerException)
+            {
+                throw new LogMangerException(nameof(ErrorCodeMessages.LoggerError106) + ": " + ErrorCodeMessages.LoggerError106, innerException);
+            }
         }
 
         public void TrackSystemEvent(Guid correlationId, Enums.EnrollmentEvent eventName, Dictionary<string, string> properties)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (IsLogTrack)
+                {
+                    LogEntry2("TrackSystemEvent :" + eventName + ", " + properties.ToDebugString());
+                }
+            }
+            catch (LogMangerException)
+            {
+                throw;
+            }
+            catch (Exception innerException)
+            {
+                throw new LogMangerException(nameof(ErrorCodeMessages.LoggerError106) + ": " + ErrorCodeMessages.LoggerError106, innerException);
+            }
         }
     }
 }
