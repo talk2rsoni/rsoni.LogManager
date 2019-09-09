@@ -88,11 +88,13 @@
     <Compile Include="ApplicationEventDetails.cs" />
     <Compile Include="BaseLogger.cs" />
     <Compile Include="Common\Common.cs" />
+    <Compile Include="Common\ConfigManager.cs" />
     <Compile Include="Common\ErrorCodeMessages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ErrorCodeMessages.resx</DependentUpon>
     </Compile>
+    <Compile Include="Common\ExtendedMethods.cs" />
     <Compile Include="Common\LogMangerException.cs" />
     <Compile Include="CSVLogger.cs" />
     <Compile Include="FileLogger.cs" />

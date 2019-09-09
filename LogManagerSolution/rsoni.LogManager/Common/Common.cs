@@ -149,6 +149,5 @@ namespace rsoni.LogManager.Common
 
             return (TType)Convert.ChangeType(configEntryString, typeof(TType));
         }
-    }
-
+    }        
 }
