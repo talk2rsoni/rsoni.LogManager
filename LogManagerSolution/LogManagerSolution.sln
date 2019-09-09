@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rsoni.LogManager.UnitTests", "UnitTests\rsoni.LogManager.UnitTests\rsoni.LogManager.UnitTests.csproj", "{ED331D7A-243C-4559-8C18-715B7664E459}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rsoni.LogManager.Standard", "rsoni.LogManager.Standard\rsoni.LogManager.Standard.csproj", "{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,18 @@ Global
 		{ED331D7A-243C-4559-8C18-715B7664E459}.Release|x64.Build.0 = Release|x64
 		{ED331D7A-243C-4559-8C18-715B7664E459}.Release|x86.ActiveCfg = Release|x86
 		{ED331D7A-243C-4559-8C18-715B7664E459}.Release|x86.Build.0 = Release|x86
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Debug|x64.Build.0 = Debug|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Debug|x86.Build.0 = Debug|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Release|x64.ActiveCfg = Release|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Release|x64.Build.0 = Release|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Release|x86.ActiveCfg = Release|Any CPU
+		{D7D954DA-2042-40DC-B87E-6DBCB3C545DE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

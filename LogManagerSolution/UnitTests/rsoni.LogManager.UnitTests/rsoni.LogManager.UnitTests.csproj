@@ -108,6 +108,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\rsoni.LogManager.Standard\rsoni.LogManager.Standard.csproj">
+      <Project>{d7d954da-2042-40dc-b87e-6dbcb3c545de}</Project>
+      <Name>rsoni.LogManager.Standard</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\rsoni.LogManager\rsoni.LogManager.csproj">
       <Project>{3378f547-90c9-4fdd-9aa5-af9255126b23}</Project>
       <Name>rsoni.LogManager</Name>
