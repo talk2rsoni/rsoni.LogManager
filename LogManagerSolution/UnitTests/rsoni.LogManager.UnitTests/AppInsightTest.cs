@@ -47,7 +47,7 @@ namespace rsoni.LogManager.UnitTests
             DependencyInjector.Init();
             ILogger logger;
             logger = DependencyInjector.GetOtherClasses<ILogger>("flogger"
-                , "logName", "22222");
+                , "logName", "1111");
             logger.LogInfo("Test Method");
             Assert.IsNotNull(logger);
         }

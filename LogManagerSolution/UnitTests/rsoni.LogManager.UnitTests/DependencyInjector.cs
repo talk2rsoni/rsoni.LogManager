@@ -116,7 +116,7 @@ namespace rsoni.LogManager.UnitTests
                                                            , string parameterName7 = null, object parameterValue7 = null)
         {
 
-            return GetClassesFromUnity<T>("ProcessEnrollment", registerName, parameterName1, parameterValue1
+            return GetClassesFromUnity<T>("PE", registerName, parameterName1, parameterValue1
                                                             , parameterName2, parameterValue2
                                                             , parameterName3, parameterValue3
                                                             , parameterName4, parameterValue4
@@ -134,7 +134,7 @@ namespace rsoni.LogManager.UnitTests
                                                            , string parameterName6 = null, object parameterValue6 = null)
         {
 
-            return GetClassesFromUnity<T>("ProductCode", registerName, parameterName1, parameterValue1
+            return GetClassesFromUnity<T>("PC", registerName, parameterName1, parameterValue1
                                                             , parameterName2, parameterValue2
                                                             , parameterName3, parameterValue3
                                                             , parameterName4, parameterValue4
@@ -152,7 +152,7 @@ namespace rsoni.LogManager.UnitTests
                                                            , string parameterName6 = null, object parameterValue6 = null)
         {
 
-            return GetClassesFromUnity<T>("RegState", registerName, parameterName1, parameterValue1
+            return GetClassesFromUnity<T>("RS", registerName, parameterName1, parameterValue1
                                                             , parameterName2, parameterValue2
                                                             , parameterName3, parameterValue3
                                                             , parameterName4, parameterValue4
